@@ -1,8 +1,13 @@
 package fr.esgi.cleancode.service;
 
+import fr.esgi.cleancode.database.InMemoryDatabase;
 import fr.esgi.cleancode.model.DrivingLicence;
 import org.assertj.core.api.Assertions;
 import org.junit.jupiter.api.Test;
+import org.junit.jupiter.api.extension.ExtendWith;
+import org.mockito.InjectMocks;
+import org.mockito.Mock;
+import org.mockito.junit.jupiter.MockitoExtension;
 
 import javax.swing.text.html.Option;
 import java.util.Optional;
@@ -12,10 +17,16 @@ import static org.assertj.core.api.Assertions.assertThat;
 import static org.assertj.core.api.Assertions.assertThatException;
 import static org.assertj.core.api.Assertions.assertThatNoException;
 import static org.mockito.Mockito.when;
-
+@ExtendWith(MockitoExtension.class)
 public class DrivingLicenceDeductPointsServiceTest {
+    @InjectMocks
+    DrivingLicenceDeductPointsService service;
 
-    DrivingLicenceDeductPointsService service = new DrivingLicenceDeductPointsService();
+    @Mock
+    InMemoryDatabase database;
+
+    @Mock
+    DrivingLicenceFinderService drivingLicenceFinderService;
 
     @Test
     void should_throw_an_exception_when_driving_licence_not_found(){
@@ -26,8 +37,10 @@ public class DrivingLicenceDeductPointsServiceTest {
     void should_find_driving_licence(){
         UUID newUUID = UUID.randomUUID();
         DrivingLicence drivingLicence = DrivingLicence.builder().id(newUUID).driverSocialSecurityNumber("123456789123456").build();
-        when(service.find(newUUID)).thenReturn(Optional.of(drivingLicence));
-        assertThatNoException().isThrownBy(() -> service.find(newUUID));
+        when(service.find(newUUID)).thenReturn(drivingLicence);
+        //stub la database et le drivingLicenceFinderService
+        DrivingLicence drivingLicenceFound = service.find(newUUID);
+        assertThat(drivingLicenceFound).isNotNull();
     }
 
     @Test
@@ -43,7 +56,7 @@ public class DrivingLicenceDeductPointsServiceTest {
     void should_deduct_2_points(){
         UUID newUUID = UUID.randomUUID();
         DrivingLicence drivingLicence = DrivingLicence.builder().id(newUUID).driverSocialSecurityNumber("123456789123456").build();
-        drivingLicence = service.deductPoints(Optional.of(drivingLicence),2);
+        drivingLicence = service.deductPoints(drivingLicence,2);
         assertThat(drivingLicence.getAvailablePoints()).isEqualTo(10);
 
     }
@@ -52,7 +65,7 @@ public class DrivingLicenceDeductPointsServiceTest {
     void should_not_go_under_0_points(){
         UUID newUUID = UUID.randomUUID();
         DrivingLicence drivingLicence = DrivingLicence.builder().id(newUUID).availablePoints(1).driverSocialSecurityNumber("123456789123456").build();
-        drivingLicence = service.deductPoints(Optional.of(drivingLicence),2);
+        drivingLicence = service.deductPoints(drivingLicence,2);
         assertThat(drivingLicence.getAvailablePoints()).isEqualTo(0);
     }
 
