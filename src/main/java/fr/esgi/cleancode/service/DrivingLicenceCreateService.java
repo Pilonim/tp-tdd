@@ -6,14 +6,15 @@ import lombok.RequiredArgsConstructor;
 import sun.reflect.generics.reflectiveObjects.NotImplementedException;
 
 import java.util.Optional;
-import java.util.UUID;
 
 @RequiredArgsConstructor
-public class DrivingLicenceFinderService {
+public class DrivingLicenceCreateService {
 
     private final InMemoryDatabase database;
 
-    public Optional<DrivingLicence> findById(UUID drivingLicenceId) {
+    private final SocialSecurityNumberValidatorService socialSecurityNumberValidatorService;
+
+    public Optional<DrivingLicence> createNewDrivingLicence(String driverSocialSecurityNumber){
         throw new NotImplementedException();
     }
 }
