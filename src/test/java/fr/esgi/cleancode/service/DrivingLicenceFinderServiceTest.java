@@ -29,12 +29,12 @@ class DrivingLicenceFinderServiceTest {
     @Test
     void should_find() {
         UUID newUUID = UUID.randomUUID();
-        final DrivingLicence drivingLicenceReturned = drivingLicenceCreateService.createNewDrivingLicence("123456789123456");
-        when(service.findById(newUUID)).thenReturn(Optional.of(drivingLicenceReturned));
+        final DrivingLicence drivingLicenceCreated = DrivingLicence.builder().id(newUUID).driverSocialSecurityNumber("123456789123456").build();
+        when(service.findById(newUUID)).thenReturn(Optional.of(drivingLicenceCreated));
         final Optional<DrivingLicence> drivingLicenceFound = service.findById(newUUID);
         assertThat(drivingLicenceFound)
                 .isNotEmpty()
-                .isEqualTo(drivingLicenceReturned);
+                .isEqualTo(Optional.of(drivingLicenceCreated));
     }
 
     @Test
